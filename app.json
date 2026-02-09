@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.eliblock.teacupapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+        "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -31,6 +32,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {
