@@ -1,31 +1,131 @@
-import { StyleSheet, Text, View } from "react-native";
-import { useUser } from '@/hooks/user';
-import { Link } from "expo-router";
+import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
+import { useUser } from "@/hooks/user";
+import { useAuth } from "@/ctx";
+import { router } from "expo-router";
 
 export default function Profile() {
-  const  { data } = useUser()
+  const { data, isLoading } = useUser();
+  const { signOut } = useAuth();
+
+  if (isLoading || !data) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text>Name: {data?.full_name}</Text>
+      <View style={styles.avatarContainer}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {data.full_name
+              ?.split(" ")
+              .map((n: string) => n[0])
+              .join("")
+              .toUpperCase() || "?"}
+          </Text>
+        </View>
+        <Text style={styles.name}>{data.full_name || "No name set"}</Text>
       </View>
-      <View>
-        <Text>Bio: {data?.bio}</Text>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Bio</Text>
+        <Text style={styles.bio}>{data.bio || "No bio yet."}</Text>
       </View>
-      <Link href="/editProfile">Edit</Link>
+
+      <Pressable
+        style={styles.primaryButton}
+        onPress={() => router.push("/editProfile")}
+      >
+        <Text style={styles.primaryButtonText}>Edit Profile</Text>
+      </Pressable>
+
+      <Pressable style={styles.signOutButton} onPress={() => signOut()}>
+        <Text style={styles.signOutButtonText}>Sign Out</Text>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 24,
+    paddingTop: 40,
+    backgroundColor: "#fff",
   },
-  button: {
-    width: 200,
-    height: 44,
+  avatarContainer: {
+    alignItems: "center",
+    marginBottom: 28,
+  },
+  avatar: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "#eee",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  avatarText: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  card: {
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#999",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  bio: {
+    fontSize: 16,
+    color: "#333",
+    lineHeight: 22,
+  },
+  primaryButton: {
+    alignItems: "center",
+    backgroundColor: "#000",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 12,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  signOutButton: {
+    alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 14,
+  },
+  signOutButtonText: {
+    color: "#333",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
