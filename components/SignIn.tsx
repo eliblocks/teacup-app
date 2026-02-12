@@ -22,7 +22,7 @@ export default function SignIn() {
 
           console.log("sending credential:", credential)
 
-          const response = await fetch('http://192.168.86.50:3000/auth/apple', {
+          const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/apple`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ identity_token: credential.identityToken }),

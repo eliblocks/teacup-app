@@ -1,12 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useUser } from '@/hooks/user';
+import { Link } from "expo-router";
 
+export default function Profile() {
+  const  { data } = useUser()
 
-export default function Index() {
   return (
     <View style={styles.container}>
       <View>
-        <Text>About Teacup</Text>
+        <Text>Name: {data?.full_name}</Text>
       </View>
+      <View>
+        <Text>Bio: {data?.bio}</Text>
+      </View>
+      <Link href="/editProfile">Edit</Link>
     </View>
   );
 }

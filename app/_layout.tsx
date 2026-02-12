@@ -1,5 +1,11 @@
 import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from '../ctx';
+import {
+  QueryClient,
+  QueryClientProvider
+} from "@tanstack/react-query";
+
+const queryClient = new QueryClient()
 
 function RootNavigator() {
   const { token } = useAuth();
@@ -19,8 +25,10 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootNavigator />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
