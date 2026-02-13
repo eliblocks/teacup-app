@@ -24,7 +24,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.eliblock.teacupapp"
     },
     "web": {
       "output": "static",
@@ -34,6 +39,7 @@
       "expo-router",
       "expo-apple-authentication",
       "expo-secure-store",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {

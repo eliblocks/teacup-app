@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, Pressable, ActivityIndicator, Image } from "react-native";
 import { useUser } from "@/hooks/user";
 import { useAuth } from "@/ctx";
 import { router } from "expo-router";
@@ -19,13 +19,17 @@ export default function Profile() {
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {data.full_name
-              ?.split(" ")
-              .map((n: string) => n[0])
-              .join("")
-              .toUpperCase() || "?"}
-          </Text>
+          {data.avatar_url ? (
+            <Image source={{ uri: data.avatar_url }} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.avatarText}>
+              {data.full_name
+                ?.split(" ")
+                .map((n: string) => n[0])
+                .join("")
+                .toUpperCase() || "?"}
+            </Text>
+          )}
         </View>
         <Text style={styles.name}>{data.full_name || "No name set"}</Text>
       </View>
@@ -67,16 +71,20 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: "100%",
+    aspectRatio: 1,
     backgroundColor: "#eee",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   avatarText: {
-    fontSize: 32,
+    fontSize: 64,
     fontWeight: "bold",
     color: "#333",
   },

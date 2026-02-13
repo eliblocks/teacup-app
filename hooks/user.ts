@@ -30,13 +30,30 @@ export function useUpdateUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ bio, fullName }: { bio: string; fullName: string }) => {
+    mutationFn: async ({ bio, fullName, avatarUri }: { bio: string; fullName: string; avatarUri?: string | null }) => {
+      const formData = new FormData()
+      formData.append('token', token!)
+      formData.append('full_name', fullName)
+      formData.append('bio', bio)
+
+      if (avatarUri) {
+        const filename = avatarUri.split('/').pop() ?? 'avatar.jpg'
+        const match = /\.(\w+)$/.exec(filename)
+        const ext = match?.[1] ?? 'jpg'
+        const mimeType = `image/${ext === 'jpg' ? 'jpeg' : ext}`
+
+        formData.append('avatar', {
+          uri: avatarUri,
+          name: filename,
+          type: mimeType,
+        } as any)
+      }
+
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/me`,
         {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, full_name: fullName, bio }),
+          body: formData,
         },
       )
       if (!response.ok) {

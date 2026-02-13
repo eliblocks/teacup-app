@@ -1,8 +1,19 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { KeyboardAwareScrollView, KeyboardToolbar } from 'react-native-keyboard-controller';
 
-import { useUser, useUpdateUser } from '@/hooks/user';
+import ImagePickerButton from '@/components/imagePicker';
+import { useUpdateUser, useUser } from '@/hooks/user';
 
 export default function EditProfile() {
   const { data, isLoading } = useUser();
@@ -18,51 +29,72 @@ export default function EditProfile() {
   return <EditProfileForm data={data} />;
 }
 
-function EditProfileForm({ data }: { data: { full_name: string; bio: string } }) {
+function EditProfileForm({ data }: { data: { full_name: string; bio: string; avatar_url?: string | null } }) {
   const [fullName, setFullName] = useState(data.full_name);
   const [bio, setBio] = useState(data.bio);
-
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const { mutate } = useUpdateUser()
 
+  const displayImage = avatarUri ?? data.avatar_url;
+
   function handleUpdate() {
-    mutate({ fullName, bio }, { onSuccess: () => router.replace('/profile') })
+    mutate({ fullName, bio, avatarUri }, { onSuccess: () => router.replace('/profile') })
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Edit Profile</Text>
+    <>
+      <KeyboardAwareScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        bottomOffset={75}
+      >
+        <Text style={styles.title}>Edit Profile</Text>
 
-      <Text style={styles.label}>Full Name</Text>
-      <TextInput
-        style={styles.input}
-        value={fullName}
-        onChangeText={setFullName}
-        placeholder="Your full name"
-      />
+        <View style={styles.avatarSection}>
+          <View style={styles.avatarPlaceholder}>
+            {displayImage ? (
+              <Image source={{ uri: displayImage }} style={styles.avatarImage} />
+            ) : (
+              <Ionicons name="person" size={48} color="#999" />
+            )}
+          </View>
+          <ImagePickerButton onImageSelected={setAvatarUri} />
+        </View>
 
-      <Text style={styles.label}>Bio</Text>
-      <TextInput
-        style={[styles.input, styles.bioInput]}
-        value={bio}
-        onChangeText={setBio}
-        placeholder="Tell us about yourself"
-        multiline
-        textAlignVertical="top"
-      />
+        <Text style={styles.label}>Full Name</Text>
+        <TextInput
+          style={styles.input}
+          value={fullName}
+          onChangeText={setFullName}
+          placeholder="Your full name"
+        />
 
-      <Pressable style={styles.saveButton} onPress={handleUpdate}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </Pressable>
-    </View>
+        <Text style={styles.label}>Bio</Text>
+        <TextInput
+          style={[styles.input, styles.bioInput]}
+          value={bio}
+          onChangeText={setBio}
+          placeholder="Tell us about yourself"
+          multiline
+          textAlignVertical="top"
+        />
+
+        <Pressable style={styles.saveButton} onPress={handleUpdate}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    paddingTop: 80,
     backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 24,
   },
   title: {
     fontSize: 24,
@@ -97,5 +129,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  avatarPlaceholder: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
 });
