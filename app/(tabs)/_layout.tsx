@@ -7,23 +7,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#ffd33d',
+        tabBarActiveTintColor: '#000',
+        tabBarInactiveTintColor: '#8e8e93',
         headerStyle: {
-          backgroundColor: '#25292e',
+          backgroundColor: '#ffffff',
         },
         headerShadowVisible: false,
-        headerTintColor: '#fff',
+        headerTintColor: '#000',
         tabBarStyle: {
-          backgroundColor: '#25292e',
+          backgroundColor: '#ffffff',
+          borderTopColor: '#e5e5e5',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Chat',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+            <Ionicons name={focused ? 'chatbubble' : 'chatbubble-outline'} color={color} size={24} />
           ),
         }}
       />

@@ -12,7 +12,11 @@ function RootNavigator() {
   const { token } = useAuth();
 
   return (
-    <Stack>
+    <Stack screenOptions={{
+      headerStyle: { backgroundColor: '#ffffff' },
+      headerTintColor: '#000',
+      headerShadowVisible: false,
+    }}>
       <Stack.Protected guard={!!token}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>

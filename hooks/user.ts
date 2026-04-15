@@ -8,14 +8,18 @@ import { useAuth } from '@/ctx';
 
 
 export function useUser() {
-  const { token } = useAuth()
+  const { token, signOut } = useAuth()
   return useQuery({
     queryKey: ['me', token],
     enabled: !!token,
+    retry: (_count: number, error: Error) => error.message !== 'Unauthorized',
     queryFn: async () => {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/me?token=${token}`,
-      )
+      const url = `${process.env.EXPO_PUBLIC_API_URL}/me?token=${token}`
+      const response = await fetch(url)
+      if (response.status === 401) {
+        signOut()
+        throw new Error('Unauthorized')
+      }
       if (!response.ok) {
         throw new Error('Failed to fetch current user')
       }
@@ -26,7 +30,7 @@ export function useUser() {
 
 
 export function useUpdateUser() {
-  const { token } = useAuth()
+  const { token, signOut } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -56,6 +60,10 @@ export function useUpdateUser() {
           body: formData,
         },
       )
+      if (response.status === 401) {
+        signOut()
+        throw new Error('Unauthorized')
+      }
       if (!response.ok) {
         throw new Error('Failed to update profile')
       }
