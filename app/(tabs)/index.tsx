@@ -56,6 +56,9 @@ export default function Index() {
   const headerHeight = useHeaderHeight();
 
   const invertedMessages = [...messages].reverse();
+  const awaitingReply =
+    messages.length > 0 && messages[messages.length - 1].role === "user";
+  const showThinking = sendMessage.isPending || awaitingReply;
 
   if (user && !user.bio) {
     return <Redirect href="/editProfile" />;
@@ -63,7 +66,7 @@ export default function Index() {
 
   const handleSend = () => {
     const trimmed = text.trim();
-    if (!trimmed || sendMessage.isPending) return;
+    if (!trimmed || showThinking) return;
     setText("");
     sendMessage.mutate(trimmed);
   };
@@ -98,7 +101,7 @@ export default function Index() {
       behavior="padding"
       keyboardVerticalOffset={headerHeight}
     >
-      {messages.length === 0 && !sendMessage.isPending ? (
+      {messages.length === 0 && !showThinking ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>☕</Text>
           <Text style={styles.emptyTitle}>Welcome to Teacup</Text>
@@ -116,7 +119,7 @@ export default function Index() {
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
           ListHeaderComponent={
-            sendMessage.isPending ? (
+            showThinking ? (
               <View style={styles.typingIndicator}>
                 <ActivityIndicator size="small" color="#999" />
                 <Text style={styles.typingText}>Teacup is thinking...</Text>
@@ -141,19 +144,16 @@ export default function Index() {
           onPress={handleSend}
           style={[
             styles.sendButton,
-            (!text.trim() || sendMessage.isPending) &&
-              styles.sendButtonDisabled,
+            (!text.trim() || showThinking) && styles.sendButtonDisabled,
           ]}
-          disabled={!text.trim() || sendMessage.isPending}
+          disabled={!text.trim() || showThinking}
           accessibilityLabel="Send"
           testID="send-button"
         >
           <Ionicons
             name="arrow-up-circle"
             size={36}
-            color={
-              text.trim() && !sendMessage.isPending ? "#000" : "#ccc"
-            }
+            color={text.trim() && !showThinking ? "#000" : "#ccc"}
           />
         </Pressable>
       </View>

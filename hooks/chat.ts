@@ -1,12 +1,19 @@
+import { useEffect, useRef } from "react";
+import { AppState } from "react-native";
 import {
   useQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { createConsumer } from "@/lib/actioncable";
 
 import { useAuth } from "@/ctx";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL!;
+
+function cableUrl(token: string) {
+  return `${API_URL.replace(/^http/, "ws")}/cable?token=${token}`;
+}
 
 export interface Message {
   id: number;
@@ -17,6 +24,40 @@ export interface Message {
 
 export function useMessages() {
   const { token, signOut } = useAuth();
+  const queryClient = useQueryClient();
+  const consumerRef = useRef<ReturnType<typeof createConsumer> | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const consumer = createConsumer(cableUrl(token));
+    consumerRef.current = consumer;
+
+    consumer.subscriptions.create("MessagesChannel", {
+      received(message: Message) {
+        queryClient.setQueryData<Message[]>(
+          ["messages", token],
+          (old = []) =>
+            old.some((m) => m.id === message.id) ? old : [...old, message]
+        );
+      },
+    });
+
+    return () => {
+      consumer.disconnect();
+      consumerRef.current = null;
+    };
+  }, [token, queryClient]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        queryClient.invalidateQueries({ queryKey: ["messages", token] });
+      }
+    });
+    return () => subscription.remove();
+  }, [queryClient, token]);
+
   return useQuery<Message[]>({
     queryKey: ["messages", token],
     enabled: !!token,
