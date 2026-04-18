@@ -7,6 +7,23 @@ import {
 import { useAuth } from '@/ctx';
 
 
+export function useUserProfile(id: string | number) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['user', id],
+    enabled: !!token && !!id,
+    queryFn: async () => {
+      const url = `${process.env.EXPO_PUBLIC_API_URL}/users/${id}?token=${token}`
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile')
+      }
+      return await response.json()
+    },
+  })
+}
+
+
 export function useUser() {
   const { token, signOut } = useAuth()
   return useQuery({

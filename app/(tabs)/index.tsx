@@ -9,12 +9,44 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
 } from "react-native";
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { useUser } from "@/hooks/user";
 import { useMessages, useSendMessage, type Message } from "@/hooks/chat";
+
+const MENTION_RE = /\[([^\]]+)\]\((\d+)\)/g;
+
+function renderMessageContent(content: string, isUser: boolean) {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = MENTION_RE.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    const name = match[1];
+    const userId = match[2];
+    parts.push(
+      <Text
+        key={`${userId}-${match.index}`}
+        style={[styles.mention, isUser && styles.userMention]}
+        onPress={() => router.push(`/user/${userId}`)}
+      >
+        {name}
+      </Text>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return parts;
+}
 
 export default function Index() {
   const { data: user } = useUser();
@@ -46,7 +78,7 @@ export default function Index() {
         ]}
       >
         <Text style={[styles.messageText, isUser && styles.userMessageText]}>
-          {item.content}
+          {renderMessageContent(item.content, isUser)}
         </Text>
       </View>
     );
@@ -187,6 +219,14 @@ const styles = StyleSheet.create({
   },
   userMessageText: {
     color: "#fff",
+  },
+  mention: {
+    fontWeight: "600",
+    textDecorationLine: "underline",
+    color: "#007AFF",
+  },
+  userMention: {
+    color: "#A0CFFF",
   },
   typingIndicator: {
     flexDirection: "row",
