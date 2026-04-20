@@ -50,15 +50,16 @@ function renderMessageContent(content: string, isUser: boolean) {
 
 export default function Index() {
   const { data: user } = useUser();
-  const { data: messages = [], isPending: loadingMessages } = useMessages();
+  const { data, isPending: loadingMessages } = useMessages();
+  const messages = data?.messages ?? [];
+  const timedOut = data?.timed_out ?? false;
   const sendMessage = useSendMessage();
   const [text, setText] = useState("");
   const headerHeight = useHeaderHeight();
 
   const invertedMessages = [...messages].reverse();
-  const awaitingReply =
-    messages.length > 0 && messages[messages.length - 1].role === "user";
-  const showThinking = sendMessage.isPending || awaitingReply;
+  const awaitingReply = messages.length > 0 && messages[messages.length - 1].role === "user";
+  const showThinking = sendMessage.isPending || (awaitingReply && !timedOut);
 
   if (user && !user.bio) {
     return <Redirect href="/editProfile" />;
@@ -124,6 +125,8 @@ export default function Index() {
                 <ActivityIndicator size="small" color="#999" />
                 <Text style={styles.typingText}>Teacup is thinking...</Text>
               </View>
+            ) : timedOut ? (
+              <Text style={styles.failedText}>Failed to send</Text>
             ) : null
           }
         />
@@ -238,6 +241,13 @@ const styles = StyleSheet.create({
     color: "#999",
     fontSize: 13,
     marginLeft: 8,
+  },
+  failedText: {
+    color: "#e53935",
+    fontSize: 13,
+    textAlign: "right",
+    paddingHorizontal: 20,
+    paddingVertical: 4,
   },
   inputContainer: {
     flexDirection: "row",

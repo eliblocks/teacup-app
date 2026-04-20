@@ -22,6 +22,11 @@ export interface Message {
   created_at: string;
 }
 
+interface MessagesResponse {
+  messages: Message[];
+  timed_out: boolean;
+}
+
 export function useMessages() {
   const { token, signOut } = useAuth();
   const queryClient = useQueryClient();
@@ -35,10 +40,13 @@ export function useMessages() {
 
     consumer.subscriptions.create("MessagesChannel", {
       received(message: Message) {
-        queryClient.setQueryData<Message[]>(
+        queryClient.setQueryData<MessagesResponse>(
           ["messages", token],
-          (old = []) =>
-            old.some((m) => m.id === message.id) ? old : [...old, message]
+          (old) => {
+            const msgs = old?.messages ?? [];
+            if (msgs.some((m) => m.id === message.id)) return old!;
+            return { messages: [...msgs, message], timed_out: false };
+          }
         );
       },
     });
@@ -58,10 +66,17 @@ export function useMessages() {
     return () => subscription.remove();
   }, [queryClient, token]);
 
-  return useQuery<Message[]>({
+  return useQuery<MessagesResponse>({
     queryKey: ["messages", token],
     enabled: !!token,
     retry: (_count: number, error: Error) => error.message !== "Unauthorized",
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data?.messages.length) return false;
+      const last = data.messages[data.messages.length - 1];
+      const waitingForReply = last.role === "user" && !data.timed_out;
+      return waitingForReply ? 10000 : false;
+    },
     queryFn: async () => {
       const response = await fetch(`${API_URL}/messages?token=${token}`);
       if (response.status === 401) {
@@ -97,17 +112,20 @@ export function useSendMessage() {
     },
     onMutate: async (content) => {
       await queryClient.cancelQueries({ queryKey: ["messages", token] });
-      const previous = queryClient.getQueryData<Message[]>(["messages", token]);
+      const previous = queryClient.getQueryData<MessagesResponse>(["messages", token]);
 
-      queryClient.setQueryData<Message[]>(["messages", token], (old = []) => [
-        ...old,
-        {
-          id: Date.now(),
-          role: "user" as const,
-          content,
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      queryClient.setQueryData<MessagesResponse>(["messages", token], (old) => ({
+        messages: [
+          ...(old?.messages ?? []),
+          {
+            id: Date.now(),
+            role: "user" as const,
+            content,
+            created_at: new Date().toISOString(),
+          },
+        ],
+        timed_out: false,
+      }));
 
       return { previous };
     },
