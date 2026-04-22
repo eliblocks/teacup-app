@@ -2,8 +2,12 @@ import { Tabs } from 'expo-router';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { useUser } from '@/hooks/user';
 
 export default function TabLayout() {
+  const { data: user } = useUser();
+  const hasConversations = !!user?.messaging_activated_at;
+
   return (
     <Tabs
       screenOptions={{
@@ -26,6 +30,16 @@ export default function TabLayout() {
           title: 'Chat',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'chatbubble' : 'chatbubble-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="conversations"
+        options={{
+          title: 'Messages',
+          href: hasConversations ? '/conversations' : null,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'mail' : 'mail-outline'} color={color} size={24} />
           ),
         }}
       />

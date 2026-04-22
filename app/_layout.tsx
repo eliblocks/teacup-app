@@ -5,6 +5,10 @@ import {
   QueryClientProvider
 } from "@tanstack/react-query";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+import { StreamChatProvider } from "@/lib/stream";
 
 const queryClient = new QueryClient()
 
@@ -12,30 +16,36 @@ function RootNavigator() {
   const { token } = useAuth();
 
   return (
-    <Stack screenOptions={{
-      headerStyle: { backgroundColor: '#ffffff' },
-      headerTintColor: '#000',
-      headerShadowVisible: false,
-    }}>
-      <Stack.Protected guard={!!token}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack.Protected>
+    <StreamChatProvider>
+      <Stack screenOptions={{
+        headerStyle: { backgroundColor: '#ffffff' },
+        headerTintColor: '#000',
+        headerShadowVisible: false,
+      }}>
+        <Stack.Protected guard={!!token}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack.Protected>
 
-      <Stack.Protected guard={!token}>
-        <Stack.Screen name="sign-in" />
-      </Stack.Protected>
-    </Stack>
+        <Stack.Protected guard={!token}>
+          <Stack.Screen name="sign-in" />
+        </Stack.Protected>
+      </Stack>
+    </StreamChatProvider>
   );
 }
 
 export default function RootLayout() {
   return (
-    <KeyboardProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <RootNavigator />
-        </AuthProvider>
-      </QueryClientProvider>
-    </KeyboardProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <KeyboardProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <RootNavigator />
+            </AuthProvider>
+          </QueryClientProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

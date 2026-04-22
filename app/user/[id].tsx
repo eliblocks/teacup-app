@@ -4,13 +4,24 @@ import {
   View,
   ActivityIndicator,
   Image,
+  Pressable,
 } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { useUserProfile } from "@/hooks/user";
+import { Stack, router, useLocalSearchParams } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+import { useUser, useUserProfile } from "@/hooks/user";
 
 export default function UserProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isLoading } = useUserProfile(id);
+  const { data: currentUser } = useUser();
+
+  const isSelf = currentUser && String(currentUser.id) === String(id);
+
+  const handleMessage = () => {
+    if (!id) return;
+    router.push(`/new-conversation/${id}`);
+  };
 
   if (isLoading || !data) {
     return (
@@ -48,6 +59,18 @@ export default function UserProfile() {
         <Text style={styles.sectionTitle}>Bio</Text>
         <Text style={styles.bio}>{data.bio || "No bio yet."}</Text>
       </View>
+
+      {!isSelf && (
+        <Pressable
+          style={styles.messageButton}
+          onPress={handleMessage}
+          accessibilityLabel="Message user"
+          testID="message-button"
+        >
+          <Ionicons name="paper-plane" size={18} color="#fff" style={styles.messageIcon} />
+          <Text style={styles.messageButtonText}>Message</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -110,5 +133,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     lineHeight: 22,
+  },
+  messageButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000",
+    borderRadius: 10,
+    padding: 14,
+  },
+  messageIcon: {
+    marginRight: 8,
+  },
+  messageButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
