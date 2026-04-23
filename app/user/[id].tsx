@@ -7,7 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { SymbolView } from "expo-symbols";
 
 import { useUser, useUserProfile } from "@/hooks/user";
 
@@ -67,7 +67,7 @@ export default function UserProfile() {
           accessibilityLabel="Message user"
           testID="message-button"
         >
-          <Ionicons name="paper-plane" size={18} color="#fff" style={styles.messageIcon} />
+          <SymbolView name={{ ios: "paperplane.fill", android: "send", web: "send" }} size={18} tintColor="#fff" style={styles.messageIcon} />
           <Text style={styles.messageButtonText}>Message</Text>
         </Pressable>
       )}

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Redirect, router } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { SymbolView } from "expo-symbols";
 
 import { useUser } from "@/hooks/user";
 import { useMessages, useSendMessage, type Message } from "@/hooks/chat";
@@ -157,10 +157,10 @@ export default function Index() {
           accessibilityLabel="Send"
           testID="send-button"
         >
-          <Ionicons
-            name="arrow-up-circle"
+          <SymbolView
+            name={{ ios: "arrow.up.circle.fill", android: "arrow_circle_up", web: "arrow_circle_up" }}
             size={36}
-            color={text.trim() && !showThinking ? "#000" : "#ccc"}
+            tintColor={text.trim() && !showThinking ? "#000" : "#ccc"}
           />
         </Pressable>
       </View>

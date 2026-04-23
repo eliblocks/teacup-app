@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
-
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { SymbolView } from 'expo-symbols';
 
 import { useUser } from '@/hooks/user';
 
@@ -29,7 +28,11 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'chatbubble' : 'chatbubble-outline'} color={color} size={24} />
+            <SymbolView
+              name={{ ios: focused ? 'bubble.left.fill' : 'bubble.left', android: 'chat_bubble', web: 'chat_bubble' }}
+              tintColor={color}
+              size={24}
+            />
           ),
         }}
       />
@@ -39,7 +42,11 @@ export default function TabLayout() {
           title: 'Messages',
           href: hasConversations ? '/conversations' : null,
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'mail' : 'mail-outline'} color={color} size={24} />
+            <SymbolView
+              name={{ ios: focused ? 'envelope.fill' : 'envelope', android: 'mail', web: 'mail' }}
+              tintColor={color}
+              size={24}
+            />
           ),
         }}
       />
@@ -48,7 +55,11 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={24}/>
+            <SymbolView
+              name={{ ios: focused ? 'person.fill' : 'person', android: 'person', web: 'person' }}
+              tintColor={color}
+              size={24}
+            />
           ),
         }}
       />

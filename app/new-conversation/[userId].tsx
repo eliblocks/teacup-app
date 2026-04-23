@@ -14,7 +14,7 @@ import {
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { SymbolView } from "expo-symbols";
 
 import { useUser, useUserProfile } from "@/hooks/user";
 import {
@@ -140,10 +140,10 @@ export default function NewConversationScreen() {
               {sending ? (
                 <ActivityIndicator size="small" color="#0a7aff" />
               ) : (
-                <Ionicons
-                  name="arrow-up-circle"
+                <SymbolView
+                  name={{ ios: "arrow.up.circle.fill", android: "arrow_circle_up", web: "arrow_circle_up" }}
                   size={30}
-                  color={canSend ? "#0a7aff" : "#c7c9cc"}
+                  tintColor={canSend ? "#0a7aff" : "#c7c9cc"}
                 />
               )}
             </Pressable>

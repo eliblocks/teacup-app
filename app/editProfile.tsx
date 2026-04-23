@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { SymbolView } from 'expo-symbols';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -55,7 +55,7 @@ function EditProfileForm({ data }: { data: { full_name: string; bio: string; ava
             {displayImage ? (
               <Image source={{ uri: displayImage }} style={styles.avatarImage} />
             ) : (
-              <Ionicons name="person" size={48} color="#999" />
+              <SymbolView name={{ ios: "person", android: "person", web: "person" }} size={48} tintColor="#999" />
             )}
           </View>
           <ImagePickerButton onImageSelected={setAvatarUri} />
