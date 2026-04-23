@@ -1,0 +1,77 @@
+appId: com.eliblock.teacupapp
+env:
+  ADMIN_BASE_URL: "http://localhost:3000"
+  USER_ID: "6"
+  USER_TOKEN: "1Yf7cHajudMJTwgyuehWj4CKvbXsARkB"
+  API_BASE_URL: "http://localhost:3000"
+---
+# Reset backend: clear AI messages and DM channels
+- runScript: reset_state.js
+
+# Kill and relaunch the app so it fetches fresh data
+- stopApp
+- launchApp
+
+# The chat screen should show the empty state
+- extendedWaitUntil:
+    visible: "Welcome to Teacup"
+    timeout: 10000
+
+# Send a message that shares personal info to trigger the reflect/share flow
+- tapOn:
+    id: "message-input"
+- inputText: "I love hiking, cooking, and reading sci-fi books. I'm really into rock climbing too."
+- tapOn:
+    id: "send-button"
+
+# Wait for the thinking indicator to appear (confirms message was sent)
+- extendedWaitUntil:
+    visible: "Teacup is thinking..."
+    timeout: 15000
+
+# Wait for the AI to respond (thinking indicator disappears)
+- extendedWaitUntil:
+    notVisible: "Teacup is thinking..."
+    timeout: 120000
+
+# Extract the mention name from the AI response
+- evalScript: ${output.found = 'false'}
+- repeat:
+    times: 5
+    while:
+      true: ${output.found !== 'true'}
+    commands:
+      - runScript: poll_for_mention.js
+
+# Dismiss keyboard by tapping the Chat header area
+- tapOn: "Chat"
+
+# Scroll to make sure the mention is visible
+- scroll
+
+# Tap the mentioned user's name link in the chat
+- tapOn: ${output.mentionName}
+
+# We should now be on the user's profile screen
+- extendedWaitUntil:
+    visible: "Bio"
+    timeout: 5000
+
+# Tap the Message button to start a DM
+- tapOn:
+    id: "message-button"
+
+# We should see the new conversation screen
+- extendedWaitUntil:
+    visible: "Send your first message to start the conversation."
+    timeout: 15000
+
+# Type and send a direct message
+- inputText: "Hey! Teacup told me about you. Nice to meet you!"
+- tapOn:
+    id: "send-button"
+
+# After sending, we should be redirected to the conversation view
+- extendedWaitUntil:
+    visible: "Hey! Teacup told me about you. Nice to meet you!"
+    timeout: 10000

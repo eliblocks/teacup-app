@@ -34,6 +34,10 @@ function renderMessageContent(content: string, isUser: boolean) {
         key={`${userId}-${match.index}`}
         style={[styles.mention, isUser && styles.userMention]}
         onPress={() => router.push(`/user/${userId}`)}
+        accessibilityRole="link"
+        accessibilityLabel={name}
+        accessible
+        testID={`mention-${userId}`}
       >
         {name}
       </Text>
